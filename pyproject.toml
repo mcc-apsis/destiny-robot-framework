@@ -1,0 +1,20 @@
+[project]
+name = "destiny-robot-framework"
+version = "0.1.0"
+requires-python = ">=3.13"
+
+dependencies = [
+"destiny-sdk>=0.13,<0.14",
+"pydantic>=2",
+"pydantic-settings>=2",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = [
+"src/base_robot",
+"src/cluster_robot",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

@@ -1,0 +1,7 @@
+{
+  "batch_id": "019fb73c-778b-7323-be26-2ae1a943480c",
+  "reference_storage_url": "http://localhost:9000/destiny-repository/robot_enhancement_batch_reference_data/019fb73c-778b-7323-be26-2ae1a943480c.jsonl?response-content-disposition=attachment&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=localuser%2F20260731%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260731T081341Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=b73d46002f60808760cc02bb2a4c447f647a1dc028e9cb5d371820cb52b472ae",
+  "result_storage_url": "http://localhost:9000/destiny-repository/robot_enhancement_batch_result_data/019fb73c-778b-7323-be26-2ae1a943480c_robot.jsonl?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=localuser%2F20260731%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260731T081341Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=849ced6fec9c179e2d6a20cfe6655fbe4754892248923f8ef5bba7ffcf796c8e",
+  "robot_version": "0.1.0",
+  "slurm_job_id": "local"
+}
