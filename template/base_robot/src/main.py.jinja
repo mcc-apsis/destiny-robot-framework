@@ -1,0 +1,38 @@
+"""Main entry point for the {{ robot_name }}."""
+
+import asyncio
+from pathlib import Path
+
+from {{ robot_name }}.config import get_settings
+from {{ robot_name }}.robot import {{ robot_class }}
+
+from base_robot.client import create_client
+from base_robot.polling_runner import PollingRunner
+from base_robot.robot_logging import configure_logging
+from base_robot.version import read_version
+
+
+def main() -> None:
+    """Run the {{ robot_name }}."""
+
+    configure_logging()
+
+    settings = get_settings()
+
+    client = create_client(settings)
+
+    robot = {{ robot_class }}(
+        robot_version=read_version(Path(__file__).parent),
+    )
+
+    runner = PollingRunner(
+        client=client,
+        robot=robot,
+        settings=settings,
+    )
+
+    asyncio.run(runner.run())
+
+
+if __name__ == "__main__":
+    main()

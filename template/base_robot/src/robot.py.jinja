@@ -1,0 +1,19 @@
+import destiny_sdk
+
+from base_robot.robot import BaseRobot
+
+
+class {{ robot_class }}(BaseRobot):
+    """Robot that creates enhancements."""
+
+    source_name = "{{ robot_name }}"
+
+    def generate_enhancements(
+        self,
+        references: list[destiny_sdk.references.Reference],
+    ) -> list[destiny_sdk.enhancements.Enhancement]:
+        """{{ description }}."""
+
+        enhancements = []
+
+        return enhancements
