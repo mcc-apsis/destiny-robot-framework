@@ -15,6 +15,11 @@ packages = [
 "src/cluster_robot",
 ]
 
+[tool.ruff]
+exclude = [
+    "template/",
+]
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
