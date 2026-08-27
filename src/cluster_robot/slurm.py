@@ -42,7 +42,7 @@ class Slurm:
         if shutil.which("sbatch") is None:
             # local execution for testing
             logger.info(
-                "No 'sbatch' found. Running Slurm script locally.",
+                "No 'sbatch' found. Running Slurm script %s locally.",
                  self.slurm_script.name,
                 )
             subprocess.run(
