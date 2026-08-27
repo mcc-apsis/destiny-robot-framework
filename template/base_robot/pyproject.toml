@@ -3,9 +3,12 @@ build-backend = "hatchling.build"
 requires = ["hatchling"]
 
 [project]
-name = "query-robot"
+name = "{{ robot_name }}"
 version = "0.1.0"
 
 dependencies = [
     "base-robot",
 ]
+
+[project.scripts]
+{{ robot_name }} = "{{ robot_name }}.main:main"

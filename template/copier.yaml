@@ -1,0 +1,13 @@
+robot_name:
+  type: str
+  help: Name of the robot
+  placeholder: relevance_robot
+
+robot_class:
+  type: str
+  default: "{{ robot_name | replace('_', ' ') | title | replace(' ', '') }}"
+  when: false
+
+description:
+  type: str
+  default: "Robot that creates enhancements."

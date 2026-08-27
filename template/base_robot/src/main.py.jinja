@@ -21,10 +21,13 @@ def main() -> None:
 
     client = create_client(settings)
 
+    project_root = Path(__file__).resolve().parent.parent
+
     robot = {{ robot_class }}(
-        robot_version=read_version(Path(__file__).parent),
+        robot_version=read_version(project_root),
     )
 
+    # Define your runner, either PollingRunner or BatchRunner.
     runner = PollingRunner(
         client=client,
         robot=robot,
