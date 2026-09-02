@@ -58,7 +58,7 @@ class Slurm:
                 ],
                 check=True,
             )
-            return "local"
+            return "10001"  # dummy job ID for local execution
 
         else:
             result = subprocess.run(
