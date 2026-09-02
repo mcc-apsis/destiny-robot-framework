@@ -1,3 +1,19 @@
+"""Create an enhancement request against a locally running DESTINY repository.
+
+The script retrieves a specified number of reference IDs from the local
+repository using the standard reference search endpoint and creates an
+enhancement request for those references using a robot registered in the
+local repository database.
+
+This script is intended for local testing only. The DESTINY repository must
+already be running at ``REPOSITORY_URL``, and ``ROBOT_ID`` is a UUID of
+a robot registered in the local database.
+
+Run with uv:
+
+    uv run create_enhancement_requests.py
+"""
+
 import json
 
 import httpx
