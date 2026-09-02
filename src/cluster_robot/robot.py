@@ -3,6 +3,7 @@
 import logging
 from abc import ABC, abstractmethod
 from pathlib import Path
+from typing import ClassVar
 
 import destiny_sdk
 import httpx
@@ -16,7 +17,7 @@ logger = logging.getLogger(__name__)
 class ClusterRobot(ABC):
     """Base class for cluster-based robots."""
 
-    upload_headers = {
+    upload_headers: ClassVar[dict[str, str]] = {
         "Content-Type": "application/jsonl",
         "x-ms-blob-type": "BlockBlob",
     }
