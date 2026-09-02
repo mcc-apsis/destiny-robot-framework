@@ -1,5 +1,6 @@
 """Base class for robots using an HPC cluster."""
 
+import asyncio
 import logging
 from abc import ABC, abstractmethod
 from pathlib import Path
@@ -84,6 +85,77 @@ class ClusterRobot(ABC):
            
             await self.prepare(batch)
 
+    #
+    # ---------- Waiting for job completion ----------
+    #
+
+    async def wait_all(self) -> None:
+        """Wait for all submitted Slurm jobs to finish successfully."""
+
+
+        jobs = [
+            self.batch_store.read_metadata(batch_dir)
+            for batch_dir in self.batch_store.submitted_batches()
+        ]
+
+        if not jobs:
+            logger.info("No submitted Slurm jobs to wait for.")
+            return
+
+        if self.settings.slurm_api_url is None:
+            non_local_jobs = [
+                metadata
+                for metadata in jobs
+                if metadata.slurm_job_id != "local"
+            ]
+
+            if non_local_jobs:
+                raise RuntimeError(
+                    "Cannot wait for Slurm jobs: no Slurm API URL configured."
+                )
+
+        headers = {}
+
+        if self.settings.slurm_user:
+            headers["X-SLURM-USER-NAME"] = self.settings.slurm_user
+
+        if self.settings.slurm_token:
+            headers["X-SLURM-USER-TOKEN"] = self.settings.slurm_token
+
+        wait_tasks = []
+
+        for metadata in jobs:
+            job_id = metadata.slurm_job_id
+
+            if job_id is None:
+                continue
+
+            if job_id == "local":
+                logger.info(
+                    "Local job for batch %s already completed.",
+                    metadata.batch_id,
+                )
+                continue
+
+            if self.settings.slurm_api_url is None:
+                raise RuntimeError(
+                    "Cannot wait for Slurm jobs: no Slurm API URL configured."
+                )
+
+            wait_tasks.append(
+                self.slurm.wait_for_job(
+                    job_id=job_id,
+                    api_url=self.settings.slurm_api_url,
+                    poll_interval=self.settings.wait_poll_interval,
+                    headers=headers,
+                )
+            )
+
+        await asyncio.gather(*wait_tasks)
+
+    #
+    # ---------- Upload ----------
+    #
 
     async def upload_all_finished(
             self,

@@ -28,3 +28,12 @@ class ClusterRobotConfiguration(RobotConfiguration):
             "in ISO 8601 format (e.g. PT6H or P1D)."
         ),
     )
+
+    slurm_api_url: str | None = None
+    slurm_user: str | None = None
+    slurm_token: str | None = None
+    wait_poll_interval: int = Field(
+        default=30,
+        gt=0,
+        description="Interval in seconds between Slurm job status checks.",
+    )

@@ -63,6 +63,20 @@ class BatchStore:
 
         return batch_dir
 
+    def submitted_batches(self) -> list[Path]:
+        """Return batches with a submitted Slurm job that have not been uploaded."""
+
+        return sorted(
+            batch_dir
+            for batch_dir in self.workspace.iterdir()
+            if (
+                batch_dir.is_dir()
+                and self.metadata_file(batch_dir).exists()
+                and not self.uploaded_file(batch_dir).exists()
+                and self.read_metadata(batch_dir).slurm_job_id is not None
+            )
+        )
+
     def finished_batches(self) -> list[Path]:
         """Return batches with finished predictions."""
 

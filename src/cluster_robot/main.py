@@ -22,7 +22,7 @@ async def run_robot(
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "command",
-        choices=["prepare", "upload"],
+        choices=["prepare", "wait", "upload"],
     )
     parser.add_argument(
         "--batch-size",
@@ -45,6 +45,9 @@ async def run_robot(
             robot_id=settings.robot_id,
             batch_size=args.batch_size,
         )
+
+    elif args.command == "wait":
+        await robot.wait_all()
     
     else:
         await robot.upload_all_finished(client)
