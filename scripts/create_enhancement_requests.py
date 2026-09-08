@@ -3,6 +3,8 @@
 Configuration is read from a JSON file containing the repository URL,
 robot ID, search query, number of references, and authentication token.
 
+config_local.json is an example configuration file for local testing.
+
 Run with:
 
     uv run create_enhancement_requests.py config.json
