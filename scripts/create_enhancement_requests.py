@@ -1,47 +1,45 @@
-"""Create an enhancement request against a locally running DESTINY repository.
+"""Create enhancement requests against a DESTINY repository.
 
-The script retrieves a specified number of reference IDs from the local
-repository using the standard reference search endpoint and creates an
-enhancement request for those references using a robot registered in the
-local repository database.
+Configuration is read from a JSON file containing the repository URL,
+robot ID, search query, number of references, and authentication token.
 
-This script is intended for local testing only. The DESTINY repository must
-already be running at ``REPOSITORY_URL``, and ``ROBOT_ID`` is a UUID of
-a robot registered in the local database.
+Run with:
 
-Run with uv:
-
-    uv run create_enhancement_requests.py
+    uv run create_enhancement_requests.py config.json
 """
 
 import json
+import sys
+from pathlib import Path
 
 import httpx
 
-REPOSITORY_URL = "http://127.0.0.1:8000"
 
-# Replace with the UUID of the robot that should process the references.
-ROBOT_ID = "cb73f9a3-af2a-4bfa-9502-f61d5fe18b11"
+def load_config(config_path: str) -> dict:
+    """Load configuration from a JSON file."""
 
-# Number of reference IDs to include in the enhancement request.
-NUMBER_OF_REFERENCES = 100
+    path = Path(config_path)
+
+    with path.open() as file:
+        return json.load(file)
 
 
 def get_reference_ids(
+    client: httpx.Client,
+    repository_url: str,
+    query: str,
     number_of_references: int,
 ) -> list[str]:
     """Retrieve reference IDs using the standard search endpoint."""
 
     reference_ids: list[str] = []
-
     page = 1
 
     while len(reference_ids) < number_of_references:
-
-        response = httpx.get(
-            f"{REPOSITORY_URL}/v1/references/search/",
+        response = client.get(
+            f"{repository_url}/v1/references/search/",
             params={
-                "q": "*:*",
+                "q": query,
                 "page": page,
             },
         )
@@ -49,7 +47,6 @@ def get_reference_ids(
         response.raise_for_status()
 
         data = response.json()
-
         references = data["references"]
 
         print(
@@ -57,17 +54,12 @@ def get_reference_ids(
             f"{len(references)} references"
         )
 
-        # No more results are available.
         if not references:
             break
 
-        page_reference_ids = [
+        reference_ids.extend(
             reference["id"]
             for reference in references
-        ]
-
-        reference_ids.extend(
-            page_reference_ids
         )
 
         page += 1
@@ -76,51 +68,99 @@ def get_reference_ids(
 
 
 def create_enhancement_request(
+    client: httpx.Client,
+    repository_url: str,
+    robot_id: str,
     reference_ids: list[str],
 ) -> dict:
+    """Create an enhancement request for the references."""
+
     payload = {
-        "robot_id": ROBOT_ID,
+        "robot_id": robot_id,
         "reference_ids": reference_ids,
-        "source": "local-test",
+        "source": "script",
     }
 
-    response = httpx.post(
-        f"{REPOSITORY_URL}/v1/enhancement-requests/",
+    response = client.post(
+        f"{repository_url}/v1/enhancement-requests/",
         json=payload,
-        timeout=30.0,
     )
+
+    response.raise_for_status()
 
     return response.json()
 
 
 def main() -> None:
-    """Retrieve reference IDs and request enhancements."""
+    """Retrieve references and create an enhancement request."""
 
-    reference_ids = get_reference_ids(
-        number_of_references=NUMBER_OF_REFERENCES,
-    )
-
-    print(
-        f"\nUsing {len(reference_ids)} reference IDs."
-    )
-
-    print("\nFirst five IDs:")
-
-    for reference_id in reference_ids[:5]:
-        print(f"  {reference_id}")
-
-    enhancement_request = create_enhancement_request(
-        reference_ids=reference_ids,
-    )
-
-    print("\nEnhancement request created:")
-
-    print(
-        json.dumps(
-            enhancement_request,
-            indent=2,
+    if len(sys.argv) != 2:
+        print(
+            "Usage: uv run create_enhancement_requests.py "
+            "<config.json>"
         )
-    )
+        sys.exit(1)
+
+    config = load_config(sys.argv[1])
+
+    repository_url = config["repository_url"].rstrip("/")
+    robot_id = config["robot_id"]
+    query = config["query"]
+    number_of_references = config["number_of_references"]
+    token = config["token"]
+
+    headers = {
+        "Authorization": f"Bearer {token}",
+    }
+
+    with httpx.Client(
+        headers=headers,
+        timeout=30.0,
+    ) as client:
+
+        print(f"Repository: {repository_url}")
+        print(f"Robot ID: {robot_id}")
+        print(f"Query: {query}")
+        print(
+            f"Number of references: "
+            f"{number_of_references}"
+        )
+
+        reference_ids = get_reference_ids(
+            client=client,
+            repository_url=repository_url,
+            query=query,
+            number_of_references=number_of_references,
+        )
+
+        print(
+            f"\nUsing {len(reference_ids)} reference IDs."
+        )
+
+        print("\nFirst five IDs:")
+
+        for reference_id in reference_ids[:5]:
+            print(f"  {reference_id}")
+
+        if not reference_ids:
+            print("\nNo references found. Nothing to do.")
+            return
+
+        enhancement_request = create_enhancement_request(
+            client=client,
+            repository_url=repository_url,
+            robot_id=robot_id,
+            reference_ids=reference_ids,
+        )
+
+        print("\nEnhancement request created:")
+
+        print(
+            json.dumps(
+                enhancement_request,
+                indent=2,
+            )
+        )
 
 
 if __name__ == "__main__":
