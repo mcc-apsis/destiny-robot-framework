@@ -340,6 +340,7 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "destiny-sdk" },
+    { name = "httpx" },
     { name = "pydantic" },
     { name = "pydantic-settings" },
 ]
@@ -352,6 +353,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "destiny-sdk", specifier = ">=0.13,<0.14" },
+    { name = "httpx", specifier = ">=0.28.1" },
     { name = "pydantic", specifier = ">=2" },
     { name = "pydantic-settings", specifier = ">=2" },
 ]

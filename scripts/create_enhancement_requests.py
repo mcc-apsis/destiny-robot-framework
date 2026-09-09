@@ -1,9 +1,16 @@
 """Create enhancement requests against a DESTINY repository.
 
-Configuration is read from a JSON file containing the repository URL,
-robot ID, search query, number of references, and authentication token.
+Reference search is performed using the DESTINY OAuth client.
+Enhancement requests are created using HMAC robot authentication.
 
-config_local.json is an example configuration file for local testing.
+Configuration is read from a JSON file containing:
+
+    repository_url
+    env_file
+    query
+    number_of_references
+
+The robot ID and secret are read from the configured .env.destiny file.
 
 Run with:
 
@@ -13,8 +20,10 @@ Run with:
 import json
 import sys
 from pathlib import Path
+from uuid import UUID
 
 import httpx
+from destiny_sdk.client import HMACSigningAuth, OAuthClient
 
 
 def load_config(config_path: str) -> dict:
@@ -26,20 +35,49 @@ def load_config(config_path: str) -> dict:
         return json.load(file)
 
 
+def load_env_file(env_path: str) -> dict[str, str]:
+    """Load key-value pairs from an environment file."""
+
+    path = Path(env_path)
+
+    with path.open() as env_file:
+        env = {}
+
+        for line in env_file:
+            line = line.strip()
+
+            if not line or line.startswith("#"):
+                continue
+
+            key, value = line.split("=", 1)
+            env[key.strip()] = value.strip().strip('"').strip("'")
+
+    return env
+
+
 def get_reference_ids(
     client: httpx.Client,
-    repository_url: str,
     query: str,
-    number_of_references: int,
+    number_of_references: int | None = None,
+    use_api_v1_prefix: bool = True,
 ) -> list[str]:
-    """Retrieve reference IDs using the standard search endpoint."""
+    """Retrieve reference IDs using the configured client."""
 
     reference_ids: list[str] = []
     page = 1
 
-    while len(reference_ids) < number_of_references:
+    search_path = (
+        "/v1/references/search/"
+        if use_api_v1_prefix
+        else "/references/search/"
+    )
+
+    while (
+        number_of_references is None
+        or len(reference_ids) < number_of_references
+    ):
         response = client.get(
-            f"{repository_url}/v1/references/search/",
+            search_path,
             params={
                 "q": query,
                 "page": page,
@@ -51,10 +89,7 @@ def get_reference_ids(
         data = response.json()
         references = data["references"]
 
-        print(
-            f"Page {page}: "
-            f"{len(references)} references"
-        )
+        print(f"Page {page}: {len(references)} references")
 
         if not references:
             break
@@ -66,7 +101,10 @@ def get_reference_ids(
 
         page += 1
 
-    return reference_ids[:number_of_references]
+    if number_of_references is not None:
+        return reference_ids[:number_of_references]
+
+    return reference_ids
 
 
 def create_enhancement_request(
@@ -75,7 +113,7 @@ def create_enhancement_request(
     robot_id: str,
     reference_ids: list[str],
 ) -> dict:
-    """Create an enhancement request for the references."""
+    """Create an enhancement request using HMAC authentication."""
 
     payload = {
         "robot_id": robot_id,
@@ -94,7 +132,7 @@ def create_enhancement_request(
 
 
 def main() -> None:
-    """Retrieve references and create an enhancement request."""
+    """Retrieve references with OAuth and create an enhancement request."""
 
     if len(sys.argv) != 2:
         print(
@@ -106,48 +144,94 @@ def main() -> None:
     config = load_config(sys.argv[1])
 
     repository_url = config["repository_url"].rstrip("/")
-    robot_id = config["robot_id"]
+    env = load_env_file(config["env_file"])
+
+    robot_id = env.get("ROBOT_ID")
+    robot_secret = env.get("ROBOT_SECRET")
+
+    if not robot_id:
+        raise ValueError("ROBOT_ID is missing from .env.destiny")
+
+    if not robot_secret:
+        raise ValueError("ROBOT_SECRET is missing from .env.destiny")
+
     query = config["query"]
-    number_of_references = config["number_of_references"]
-    token = config["token"]
+    number_of_references = config.get("number_of_references")
 
-    headers = {
-        "Authorization": f"Bearer {token}",
-    }
+    print(f"Repository: {repository_url}")
+    print(f"Robot ID: {robot_id}")
+    print(f"Query: {query}")
 
-    with httpx.Client(
-        headers=headers,
-        timeout=30.0,
-    ) as client:
+    if number_of_references is None:
+        print("Number of references: all")
+    else:
+        print(f"Number of references: {number_of_references}")
 
-        print(f"Repository: {repository_url}")
-        print(f"Robot ID: {robot_id}")
-        print(f"Query: {query}")
-        print(
-            f"Number of references: "
-            f"{number_of_references}"
+    # ------------------------------------------------------------------
+    # 1. Search references using OAuth
+    # ------------------------------------------------------------------
+
+    print("\nSearching references using OAuth...")
+
+    is_local = repository_url.startswith(
+        (
+            "http://127.0.0.1:",
+            "http://localhost:",
         )
+    )
+
+    if is_local:
+        print("\nUsing local repository without OAuth.")
+
+        with httpx.Client(
+            base_url=repository_url,
+            timeout=30.0,
+        ) as client:
+            reference_ids = get_reference_ids(
+                client=client,
+                query=query,
+                number_of_references=number_of_references,
+                use_api_v1_prefix=True,
+            )
+
+    else:
+        print("\nUsing staging repository with OAuth.")
+
+        oauth_client = OAuthClient(env="staging")
 
         reference_ids = get_reference_ids(
-            client=client,
-            repository_url=repository_url,
+            client=oauth_client.get_client(),
             query=query,
             number_of_references=number_of_references,
+            use_api_v1_prefix=False,
         )
 
-        print(
-            f"\nUsing {len(reference_ids)} reference IDs."
-        )
+    print(f"\nUsing {len(reference_ids)} reference IDs.")
 
-        print("\nFirst five IDs:")
+    print("\nFirst five IDs:")
 
-        for reference_id in reference_ids[:5]:
-            print(f"  {reference_id}")
+    for reference_id in reference_ids[:5]:
+        print(f"  {reference_id}")
 
-        if not reference_ids:
-            print("\nNo references found. Nothing to do.")
-            return
+    if not reference_ids:
+        print("\nNo references found. Nothing to do.")
+        return
 
+    # ------------------------------------------------------------------
+    # 2. Create enhancement request using HMAC robot authentication
+    # ------------------------------------------------------------------
+
+    print("\nCreating enhancement request using HMAC...")
+
+    hmac_auth = HMACSigningAuth(
+        secret_key=robot_secret,
+        client_id=UUID(robot_id),
+    )
+
+    with httpx.Client(
+        auth=hmac_auth,
+        timeout=30.0,
+    ) as client:
         enhancement_request = create_enhancement_request(
             client=client,
             repository_url=repository_url,
@@ -155,14 +239,14 @@ def main() -> None:
             reference_ids=reference_ids,
         )
 
-        print("\nEnhancement request created:")
+    print("\nEnhancement request created:")
 
-        print(
-            json.dumps(
-                enhancement_request,
-                indent=2,
-            )
+    print(
+        json.dumps(
+            enhancement_request,
+            indent=2,
         )
+    )
 
 
 if __name__ == "__main__":
