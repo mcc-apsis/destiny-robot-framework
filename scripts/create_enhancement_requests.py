@@ -19,6 +19,7 @@ Run with:
 
 import json
 import sys
+from datetime import datetime
 from pathlib import Path
 from uuid import UUID
 
@@ -89,7 +90,7 @@ def get_reference_ids(
         data = response.json()
         references = data["references"]
 
-        print(f"Page {page}: {len(references)} references")
+        print(f"{datetime.now().astimezone():%H:%M:%S} - Page {page}: {len(references)} references")
 
         if not references:
             break
@@ -98,6 +99,10 @@ def get_reference_ids(
             reference["id"]
             for reference in references
         )
+
+        # Stop at the API's maximum of 10,000 references.
+        if len(reference_ids) >= 10_000:
+            break
 
         page += 1
 
@@ -126,6 +131,7 @@ def create_enhancement_request(
         json=payload,
     )
 
+    print(f"{datetime.now().astimezone():%H:%M:%S} - Response: {response.text}")
     response.raise_for_status()
 
     return response.json()
@@ -206,6 +212,8 @@ def main() -> None:
             use_api_v1_prefix=False,
         )
 
+    # remove duplicates, don't know why they appear
+    reference_ids = list(dict.fromkeys(reference_ids))
     print(f"\nUsing {len(reference_ids)} reference IDs.")
 
     print("\nFirst five IDs:")
