@@ -3,9 +3,20 @@ build-backend = "hatchling.build"
 requires = ["hatchling"]
 
 [project]
-name = "relevance-robot"
+name = "dummy-classification-robot"
 version = "0.1.0"
-
+requires-python = ">=3.13"
 dependencies = [
-    "base-robot",
+    "destiny-robot-framework",
+    "joblib>=1.6.0",
+    "pydantic-settings",
 ]
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/dummy_classification_robot"]
+
+[tool.uv.sources]
+destiny-robot-framework = { git = "https://github.com/mcc-apsis/destiny-robot-framework.git" }

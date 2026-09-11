@@ -7,10 +7,11 @@ from pathlib import Path
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+from dummy_classification_robot.config import Settings
+from dummy_classification_robot.robot import ClassificationRobot
+
 from base_robot.batch_runner import BatchRunner
 from base_robot.client import create_client
-from base_robot.dummy_classification_robot.config import Settings
-from base_robot.dummy_classification_robot.robot import ClassificationRobot
 from base_robot.robot_logging import configure_logging
 from base_robot.version import read_version
 

@@ -12,8 +12,8 @@ from destiny_sdk.enhancements import (
 from destiny_sdk.references import Reference
 from destiny_sdk.visibility import Visibility
 
-from base_robot.dummy_classification_robot.classifier import Classifier
 from base_robot.robot import BaseRobot
+from dummy_classification_robot.classifier import Classifier
 
 SCHEME = "domain:inclusion"
 LABEL = "cdr"
