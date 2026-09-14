@@ -15,6 +15,7 @@ class Environment(StrEnum):
 
 class ClusterRobotConfiguration(RobotConfiguration):
     """Settings shared by all cluster-based robots."""
+    batch_size: int = 10
 
     workspace: Path = Field(
         default=Path("./workspace"),
