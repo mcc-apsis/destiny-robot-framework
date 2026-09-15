@@ -55,57 +55,6 @@ Run your robot with
 uv run python -m my-robot
 ```
 ### Cluster Robot
-## Create a new robot 
-
-We use [uv](https://docs.astral.sh/uv/) to manage the Python environment and dependencies. If you don't have `uv` installed, install it with:
-```
-curl -LsSf https://astral.sh/uv/install.sh | sh
-```
-### Base Robot
-To create a new base robot, probably the most common robot framework, you can use a template. Simply run:
-```
-uvx copier copy https://github.com/mcc-apsis/destiny-robot-framework.git my-robot
-
-``` 
-Copier will ask for the robot name:
-```
-Name of the robot:
-```
-The template generates the corresponding project structure and implementation skeleton:
-``` 
-my-robot/
-├── .env.local.example
-├── pyproject.toml
-└── src/
-    ├── __init__.py
-    ├── config.py
-    ├── main.py
-    └── robot.py
-```
-After creating the robot, install its dependencies with:
-```
-cd my-robot
-uv sync
-```
-Copy the local environment file which contains the robot-ID of a local DESTINY-repository db-dumb :
-```
-cp .env.local.example .env
-``` 
-Add your robot-specific code to `robot.py`.
-
-In `main.py`, you can choose between two different ways of operating the robot:
-
-- **`PollingRunner`** continuously polls for new batches at a given time interval. Configure the `polling_interval` and `batch_size` variables.
-- **`BatchRunner`** downloads all available batches and shuts down once they have been processed. Configure the `batch_size` variable.
-
-You can test your robot against a locally running DESTINY repository.
-See here to get a locally running repo. Please make sure that there are enhancement batches.
-
-Run your robot with
-```
-uv run python -m my-robot
-```
-### Cluster Robot
 A cluster robot is a robot that performs its processing on a computing cluster using SLURM.
 
 As a starting point, we recommend using the dummy_cluster_robot in the examples directory.
