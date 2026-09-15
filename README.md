@@ -89,7 +89,12 @@ Copy the local environment file which contains the robot-ID of a local DESTINY-r
 ```
 cp .env.local.example .env
 ``` 
-Add your robot-specific code in `robot.py`. 
+Add your robot-specific code to `robot.py`.
+
+In `main.py`, you can choose between two different ways of operating the robot:
+
+- **`PollingRunner`** continuously polls for new batches at a given time interval. Configure the `polling_interval` and `batch_size` variables.
+- **`BatchRunner`** downloads all available batches and shuts down once they have been processed. Configure the `batch_size` variable.
 
 You can test your robot against a locally running DESTINY repository.
 See here to get a locally running repo. Please make sure that there are enhancement batches.
@@ -139,7 +144,7 @@ export SLURM_USER=$USER
 export SLURM_TOKEN="$(scontrol token lifespan=172800)"
 export SLURM_API="https://<slurm-api-url>"
 ```
-##### 3. Process
+#### 3. Process
 
 After the SLURM job has finished, parse its output and upload the resulting enhancements:
 ```
