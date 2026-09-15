@@ -1,6 +1,8 @@
-# destiny-robot-framework
+# Framework for creating DESTINY robots
 
-Framework for creating DESTINY robots.
+[Wiki for this project](https://github.com/mcc-apsis/destiny-robot-framework/wiki)
+
+[DESTINY repository documentation](https://destiny-evidence.github.io/destiny-repository/)
 
 This repository contains two frameworks for building robots that interact with the [DESTINY repository](https://github.com/destiny-evidence/destiny-repository):
 
@@ -193,6 +195,3 @@ The `examples` directory contains three simple robot implementations:
 The `scripts` directory contains useful scripts for:
 
 * creating enhancement batches using a free text search
-
-## Useful Resources
-More documentation can be found [here](...).
