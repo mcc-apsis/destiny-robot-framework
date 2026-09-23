@@ -5,10 +5,18 @@ requires = ["hatchling"]
 [project]
 name = "{{ robot_name }}"
 version = "0.1.0"
+requires-python = ">=3.13"
 
 dependencies = [
-    "base-robot",
+    "destiny-robot-framework",
+    "pydantic-settings",
 ]
 
-[project.scripts]
-{{ robot_name }} = "{{ robot_name }}.main:main"
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/{{ robot_name }}"]
+
+[tool.uv.sources]
+destiny-robot-framework = { git = "https://github.com/mcc-apsis/destiny-robot-framework.git" }
