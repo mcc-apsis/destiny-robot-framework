@@ -2,7 +2,6 @@ from functools import lru_cache
 from pathlib import Path
 
 from pydantic_settings import SettingsConfigDict
-
 from base_robot.config import PollingRobotSettings
 
 
