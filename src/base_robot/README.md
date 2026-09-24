@@ -24,12 +24,59 @@ Several utility modules support the common functionality of all robots:
 
 ## Implementation
 
-Implementing a new robot requires very little robot-specific code. Please use the template to create your own robot, see [here](https://github.com/mcc-apsis/destiny-robot-framework/blob/main/README.md).
+To create a new base robot, the most common robot framework, you can use the provided template. Simply run:
 
+```bash
+uvx copier copy https://github.com/mcc-apsis/destiny-robot-framework.git my-robot
+```
+
+Copier will ask for the robot name:
+
+```text
+Name of the robot:
+```
+
+The template generates the corresponding project structure and implementation skeleton:
+
+```text
+my-robot/
+├── .env.local.example
+├── pyproject.toml
+└── src/
+    ├── __init__.py
+    ├── config.py
+    ├── main.py
+    └── robot.py
+```
 * **robot.py** implements the enhancement logic by subclassing `BaseRobot` and providing an implementation of `generate_enhancement()`. The **only function** that must be implemented for a minimal custom robot is `generate_enhancement()`.
 * **main.py** initializes the robot, loads the configuration, creates the required clients, and serves as the application's entry point.
 * **config.py** defines the robot-specific configuration. It can include additional settings such as model locations, classifier parameters, or custom runtime options.
 * **pyproject.toml** defines the project metadata and robot version, which is reported to the DESTINY repository during execution.
+
+After creating the robot, install its dependencies with:
+
+```bash
+cd my-robot
+uv sync
+```
+
+Copy the local environment file:
+
+```bash
+cp .env.local.example .env
+```
+
+Add your robot-specific code in `robot.py`.
+
+You can test your robot against a locally running DESTINY repository. See the [local DESTINY repository instructions](https://github.com/mcc-apsis/destiny-robot-framework/wiki/7-Run-a-local-Destiny-Repo) and make sure that enhancement batches are available.
+
+Run your robot with:
+
+```bash
+uv run python -m my-robot
+```
+
+
 
 ## Try out the examples
 

@@ -1,12 +1,14 @@
 # Cluster Robot
 
-The [**`ClusterRobot`**](https://github.com/mcc-apsis/destiny-robot-framework) extends the robot framework to support computationally intensive enhancement generation on high-performance computing (HPC) clusters. The workflow of a robot is separated into three stages.
+The **`ClusterRobot`** extends the robot framework to support computationally intensive enhancement generation on high-performance computing (HPC) clusters. The workflow is separated into three stages.
 
 In the **preparation stage**, the robot downloads enhancement batches from the DESTINY repository, prepares the input files required for processing, and submits a Slurm job to the compute cluster. The actual enhancement generation is performed entirely by the cluster job.
 
 In the **wait stage**, the robot waits for the submitted Slurm jobs to finish. It continuously queries the Slurm API to check the status of the submitted jobs and proceeds to the upload stage once they have completed successfully.
 
 In the **upload stage**, the robot collects the output produced by the cluster jobs, converts it into DESTINY enhancements, and uploads the results back to the DESTINY repository.
+
+## Components
 
 The `ClusterRobot` consists of the following components:
 
@@ -50,9 +52,9 @@ To implement a new cluster robot, only a small number of robot-specific files ar
 * **`slurm.sh`**, together with any additional scripts required to execute the enhancement generation on the compute cluster.
 * **`main.py`**, providing the command-line entry point.
 
-A minimal custom cluster robot only needs to implement `write_input()` and `parse_output()`, as well as the Slurm script and any additional scripts required by it.
+As a starting point, we recommend using the [`dummy_cluster_robot`](https://github.com/mcc-apsis/destiny-robot-framework/tree/main/examples/dummy_cluster_robot) in the `examples` directory.
 
-A small example implementation can be found in the [`dummy_cluster_robot`](https://github.com/mcc-apsis/destiny-robot-framework/tree/main/examples/dummy_cluster_robot).
+A minimal custom cluster robot only needs to implement `write_input()` and `parse_output()`, as well as the Slurm script and any additional scripts required by it.
 
 ## Configuration
 

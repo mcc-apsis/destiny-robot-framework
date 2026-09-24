@@ -15,6 +15,117 @@ For detailed documentation on each framework, see:
 * **[`base_robot`](./src/base_robot/README.md)** — framework architecture, implementation, configuration, and examples.
 * **[`cluster_robot`](./src/cluster_robot/README.md)** — cluster workflow, implementation, configuration, and examples.
 
+
+## Which framework should I use?
+
+| | `base_robot` | `cluster_robot` |
+|---|---|---|
+| Processing | On the robot machine | On a SLURM cluster |
+| Workflow | Single run | Prepare → Wait → Upload |
+| Best suited for | Lightweight processing | Computationally intensive processing |
+
+For detailed documentation, see:
+# Framework for creating DESTINY robots
+
+[Wiki for this project](https://github.com/mcc-apsis/destiny-robot-framework/wiki)
+
+[DESTINY repository documentation](https://destiny-evidence.github.io/destiny-repository/)
+
+This repository provides two frameworks for building robots that interact with the [DESTINY repository](https://github.com/destiny-evidence/destiny-repository):
+
+- **`base_robot`** — for robots that download, process, and upload references in a single run.
+- **`cluster_robot`** — for computationally intensive robots that perform processing on a SLURM cluster and separate preparation, waiting, and upload into distinct stages.
+
+## Which framework should I use?
+
+| | `base_robot` | `cluster_robot` |
+|---|---|---|
+| Processing | On the robot machine | On a SLURM cluster |
+| Workflow | Single run | Prepare → Wait → Upload |
+| Best suited for | Lightweight processing | Computationally intensive processing |
+
+For detailed documentation, see:
+
+- **[`base_robot`](./src/base_robot/README.md)** — framework architecture, implementation, configuration, and examples.
+- **[`cluster_robot`](./src/cluster_robot/README.md)** — cluster workflow, implementation, configuration, workspace, and examples.
+
+## Getting started
+
+We use [uv](https://docs.astral.sh/uv/) to manage Python environments and dependencies.
+
+### 1. Choose a framework
+
+Choose `base_robot` for processing that can be performed on the robot machine. Choose `cluster_robot` if the enhancement generation should run on a SLURM cluster.
+
+### 2. Create your robot
+
+For a new robot based on `base_robot`, use the provided Copier template:
+
+```bash
+uvx copier copy https://github.com/mcc-apsis/destiny-robot-framework.git my-robot
+```
+
+For a `cluster_robot`, start from the [`dummy_cluster_robot`](./examples/dummy_cluster_robot) example.
+
+See the corresponding framework README for detailed implementation instructions.
+
+### 3. Test your robot
+
+Test the robot against a [local DESTINY repository](https://github.com/mcc-apsis/destiny-robot-framework/wiki/7-Run-a-local-Destiny-Repo) before deploying it.
+
+The [robot testing guide](https://github.com/mcc-apsis/destiny-robot-framework/wiki/3-Robot---Testing) contains further information.
+
+### 4. Register the robot
+
+Once the robot has been tested successfully, [register it with the DESTINY repository](https://github.com/mcc-apsis/destiny-robot-framework/wiki/4-Robot---Registration#registering-a-robot).
+
+### 5. Assign work
+
+Finally, [assign work to the robot](https://github.com/mcc-apsis/destiny-robot-framework/wiki/4-Robot---Registration#assigning-work-to-a-robot).
+
+## Examples
+
+The `examples` directory contains minimal implementations demonstrating different types of robots.
+
+### Based on `base_robot`
+
+- **`query_robot`** — generates boolean enhancements indicating that all references returned by a query are included.
+- **`dummy_classification_robot`** — demonstrates how to integrate a classifier into a robot.
+
+### Based on `cluster_robot`
+
+- **`dummy_cluster_robot`** — demonstrates how to run enhancement generation as a SLURM job.
+
+## Scripts
+
+The `scripts` directory contains utility scripts for working with the DESTINY repository, including creating enhancement batches from free-text searches.
+- **[`base_robot`](./src/base_robot/README.md)**  
+  Framework architecture, implementation, configuration, and examples.
+
+- **[`cluster_robot`](./src/cluster_robot/README.md)**  
+  Cluster workflow, implementation, configuration, workspace, and examples.
+
+## Getting started
+
+We use [uv](https://docs.astral.sh/uv/) to manage Python environments
+and dependencies.
+
+### 1. Choose a framework
+
+Choose `base_robot` for processing that can be performed on the robot
+machine. Choose `cluster_robot` if the enhancement generation should run
+on a SLURM cluster.
+
+### 2. Create your robot
+
+For a new robot based on `base_robot`, use the provided Copier template:
+
+```bash
+uvx copier copy https://github.com/mcc-apsis/destiny-robot-framework.git my-robot
+```
+
+
+
 ## Create a new robot
 
 We use [uv](https://docs.astral.sh/uv/) to manage the Python environment and dependencies. If you don't have `uv` installed, install it with:
@@ -135,3 +246,6 @@ The `examples` directory contains three simple robot implementations.
 The `scripts` directory contains useful scripts for:
 
 * creating enhancement batches using a free-text search
+
+## I created my robots - now what?
+Once you implemented your robot, and [tested it locally](https://github.com/mcc-apsis/destiny-robot-framework/wiki/3-Robot---Testing) to let it run properly, you need to [register](https://github.com/mcc-apsis/destiny-robot-framework/wiki/4-Robot---Registration#registering-a-robot) it at the DEstiny repository and [assign work](https://github.com/mcc-apsis/destiny-robot-framework/wiki/4-Robot---Registration#assigning-work-to-a-robot) to it.
