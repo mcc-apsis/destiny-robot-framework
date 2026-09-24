@@ -22,6 +22,31 @@ Several utility modules support the common functionality of all robots:
 
 * **`version.py`** provides utilities for reading and exposing the robot version from the `pyproject.toml`.
 
+## Implementation
+
+Implementing a new robot requires very little robot-specific code. Please use the template to create your own robot, see [here](https://github.com/mcc-apsis/destiny-robot-framework/blob/main/README.md).
+
+* **robot.py** implements the enhancement logic by subclassing `BaseRobot` and providing an implementation of `generate_enhancement()`. The **only function** that must be implemented for a minimal custom robot is `generate_enhancement()`.
+* **main.py** initializes the robot, loads the configuration, creates the required clients, and serves as the application's entry point.
+* **config.py** defines the robot-specific configuration. It can include additional settings such as model locations, classifier parameters, or custom runtime options.
+* **pyproject.toml** defines the project metadata and robot version, which is reported to the DESTINY repository during execution.
+
+## Try out the examples
+
+Minimal example implementations are provided in the repository. The [`query_robot`](https://github.com/mcc-apsis/destiny-robot-framework/tree/main/examples/query_robot) demonstrates the smallest possible robot implementation, while the [`dummy_classification_robot`](https://github.com/mcc-apsis/destiny-robot-framework/tree/main/examples/dummy_classification_robot) demonstrates how a machine learning model can be integrated into the framework.
+
+Assuming that a [local DESTINY repository](https://github.com/mcc-apsis/destiny-robot-framework/wiki/7-Run-a-local-Destiny-Repo) is running, the robot folder contains a [`.env` file ](https://github.com/mcc-apsis/destiny-robot-framework/wiki/7-Run-a-local-Destiny-Repo#create-and-receive-batches), provided by the template in env.local and [enhancement batches ](https://github.com/mcc-apsis/destiny-robot-framework/wiki/7-Run-a-local-Destiny-Repo#create-and-receive-batches) are available, the query robot can be started from the `query_robot` folder with
+
+```javascript
+uv run python -m query_robot
+```
+
+The `dummy_classifier_robot` needs a model to be trained, instructions can be found in [`models`](https://github.com/mcc-apsis/destiny-robot-framework/blob/main/examples/dummy_classification_robot/models/train_test_model.py). Once this is done the robot is started from the `dummy_classification folder` with
+
+```javascript
+uv run python -m dummy_classification_robot
+```
+
 ## Configuration
 
 The following environment variables configure the robot:
